@@ -1,10 +1,8 @@
 
 
 // Генератор паролей по алфавиту и длине или коллбеку
-// Использует андерскор как шаблонизатор, но это легко меняется
-// Говнокод
 (function($, vendor) {
-    var __pluginName = 'password';
+    var __pluginName = 'passwordGenerator';
     var __events = {
         click: 'click',                    // поле изменено
         regenerate: 'password.regenerate', // инициирует генерацию
@@ -74,14 +72,19 @@
         };
 
         __self.attach = function() {
-            var options, obj, parent, wrapper, placeholder, container;
+            var options, obj, parent, wrapper, placeholder, predecessor, container;
             options = __self.getOptions();
             obj = __self.getObject();
             parent = obj.parent();
             wrapper = $(vendor.render(options.view.templates.wrapper, {title: options.title}));
-            wrapper.prependTo(parent);
             placeholder = wrapper.find(options.view.selectors.input);
+            predecessor = obj.prev();
             placeholder.replaceWith(obj);
+            if (predecessor.length > 0) {
+                predecessor.after(wrapper);
+            } else {
+                wrapper.prependTo(parent);
+            }
             // placeholder.remove();
             return __self;
         };
@@ -140,7 +143,7 @@
         };
 
         __self.onGenerateRequired = function(e, data) {
-            var password = __self.generatePassword();  // Mmm?
+            var password = __self.generatePassword();
             var options = __self.getOptions();
             var obj = __self.getObject();
             obj.trigger(options.events.generated, [{password: password}]);
@@ -161,7 +164,6 @@
                 obj.trigger(options.events.displayed);
             }
         };
-
 
         return __init(obj, options);
     };
